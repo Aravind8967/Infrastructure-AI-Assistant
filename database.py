@@ -4,15 +4,6 @@ import re
 from default_prompts import SQL_SYSTEM_PROMPT
 
 
-DB_CONFIG = {
-    "host": "localhost",
-    "port": 5432,
-    "database": "incident_db",
-    "user": "incident_ai",
-    "password": "ai_password"
-}
-
-
 OLLAMA_URL = "http://localhost:11434"
 MODEL = "gemma3:4b-it-q4_K_M"
 EMBEDDING_MODEL = "nomic-embed-text:latest"
@@ -20,6 +11,15 @@ EMBEDDING_MODEL = "nomic-embed-text:latest"
 
 # ================================= SQl =====================================
 class SQLInterface:
+    def __init__(self):
+        self.DB_CONFIG = {
+            "host": "localhost",
+            "port": 5432,
+            "database": "incident_db",
+            "user": "incident_ai",
+            "password": "ai_password"
+        }
+
     def generate_sql(self, question):
         prompt = SQL_SYSTEM_PROMPT + f"""
             User Question: {question}
@@ -46,7 +46,7 @@ class SQLInterface:
         sql = self.generate_sql(question)
         print(f"Generated sql : {sql}")
 
-        conn = psycopg2.connect(**DB_CONFIG)
+        conn = psycopg2.connect(**self.DB_CONFIG)
         try:
             cursor = conn.cursor()
 
@@ -74,6 +74,15 @@ class SQLInterface:
 # ======================== Vector search =======================================
 
 class VectorInterface:
+    def __init__(self):
+        self.DB_CONFIG = {
+            "host": "localhost",
+            "port": 5432,
+            "database": "incident_db",
+            "user": "incident_ai",
+            "password": "ai_password"
+        }
+
     def generate_embedding(self, text):
         try:
             response = requests.post(
@@ -91,7 +100,7 @@ class VectorInterface:
         query_embedding = self.generate_embedding(query)
 
         try:
-            with psycopg2.connect(**DB_CONFIG) as conn:
+            with psycopg2.connect(**self.DB_CONFIG) as conn:
                 with conn.cursor() as cur:
                     cur.execute("""
                         SELECT
@@ -147,3 +156,138 @@ class VectorInterface:
                 })
 
         return results
+
+
+# ========================== Conversation ===================================
+
+class ConversationInterface:
+    def __init__(self):
+        self.DB_CONFIG = {
+            "host": "localhost",
+            "port": 5432,
+            "database": "incident_db",
+            "user": "postgres",
+            "password": "postgres123"
+        }
+
+    def save_message(self, user_id, role, content):
+        conn = psycopg2.connect(**self.DB_CONFIG)
+
+        try:
+            cursor = conn.cursor()
+
+            query = """
+                INSERT INTO conversation.messages
+                    (user_id, role, content)
+                VALUES
+                    (%s, %s, %s)
+            """
+
+            cursor.execute(
+                query,
+                (user_id, role, content)
+            )
+
+            conn.commit()
+            print(f"{role} message saved to database")
+
+        finally:
+            cursor.close()
+
+    def get_last_messages(self, user_id, limit=5):
+        conn = psycopg2.connect(**self.DB_CONFIG)
+
+        try:
+            cursor = conn.cursor()
+
+            query = """
+                SELECT
+                    role,
+                    content,
+                    created_at
+                FROM conversation.messages
+                WHERE user_id = %s
+                ORDER BY created_at DESC, message_id DESC
+                LIMIT %s
+            """
+
+            cursor.execute(
+                query,
+                (user_id, limit)
+            )
+
+            rows = cursor.fetchall()
+
+            cursor.close()
+
+            # Database returns newest first.
+            # Reverse so LLM sees conversation chronologically.
+            rows.reverse()
+
+            return [
+                {
+                    "role": row[0],
+                    "content": row[1],
+                    "created_at": row[2]
+                }
+                for row in rows
+            ]
+
+        finally:
+            conn.close()
+
+class UserInterface:
+    def __init__(self):
+        self.DB_CONFIG = {
+            "host": "localhost",
+            "port": 5432,
+            "database": "incident_db",
+            "user": "postgres",
+            "password": "postgres123"
+        }
+
+    def insert_user(self, user_name, user_role):
+        conn = psycopg2.connect(**self.DB_CONFIG)
+
+        try:
+            cursor = conn.cursor()
+            query = """
+                INSERT INTO identity.users (user_name, user_role)
+                VALUES (%s, %s)
+            """
+
+            cursor.execute(query, (user_name, user_role))
+            conn.commit()
+
+            print(f"New User created username : {user_name}")
+        finally:
+            cursor.close()
+
+    def get_user(self, user_name):
+        conn = psycopg2.connect(**self.DB_CONFIG)
+
+        try:
+            cursor = conn.cursor()
+            query = """
+                SELECT * from identity.users 
+                WHERE user_name like %s
+            """
+            cursor.execute(query, (user_name,))
+            user = cursor.fetchone()
+
+            if user:
+                return {
+                    'user_id' : user[0],
+                    'user_name' : user[1],
+                    'user_role' : user[2] 
+                }
+            else:
+                return None
+
+        finally:
+            conn.close()   
+
+if __name__ == '__main__':
+    user = ConversationInterface()
+
+    print(user.get_last_messages(2))
