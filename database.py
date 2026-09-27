@@ -63,10 +63,10 @@ def sql_assistent(question):
 
         cursor.close()
 
-        return { 'data' : result, 'status' : 200}
+        return result
     
     except Exception as e:
-        return {'data' : 'Not able to get the data plese try again', 'status' : 400}
+        return 'Not able to get the data plese try again'
     finally:
         conn.close()
 
