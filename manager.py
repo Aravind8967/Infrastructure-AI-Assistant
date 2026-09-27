@@ -47,8 +47,7 @@ def chat(question):
 
     elif "VECTOR" in route:
         result = vector_search(question)
-        for row in result:
-            print(row)
+        return result
 
     else:
         return "GENERAL"

@@ -30,6 +30,7 @@ MANAGER_PROMPT = """
     - Have we seen an EC2 instance failure before?
     - Did we have any Kubernetes deployment failures?
     - Have we experienced a similar database connectivity problem?
+    - I am not reciveing any alert any incident realted to this?
 
     GENERAL:
     Use GENERAL for general infrastructure or software engineering

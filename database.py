@@ -16,10 +16,9 @@ DB_CONFIG = {
 OLLAMA_URL = "http://localhost:11434"
 MODEL = "gemma3:4b-it-q4_K_M"
 EMBEDDING_MODEL = "nomic-embed-text:latest"
-TOP_K = 4
-SIMILARITY_THRESHOLD = 0.75
 
 
+# ================================= SQl =====================================
 
 def generate_sql(question):
     prompt = SQL_SYSTEM_PROMPT + f"""
@@ -72,102 +71,77 @@ def sql_assistent(question):
         conn.close()
 
 
+# ======================== Vector search =======================================
+
 def generate_embedding(text):
+    try:
+        response = requests.post(
+            f"{OLLAMA_URL}/api/embed",
+            json={"model": EMBEDDING_MODEL, "input": text},
+            timeout=120
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["embeddings"][0]
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Ollama embedding request failed: {e}")
 
-    response = requests.post(
-        f"{OLLAMA_URL}/api/embed",
-        json={
-            "model": EMBEDDING_MODEL,
-            "input": text
-        },
-        timeout=120
-    )
-
-    response.raise_for_status()
-
-    data = response.json()
-
-    return data["embeddings"][0]
-
-
-def vector_search(query):
-
-    query_embedding = generate_embedding(
-        query
-    )
-
-    conn = psycopg2.connect(
-        **DB_CONFIG
-    )
+def vector_search(query, top_k=5, similarity_threshold=0.5):
+    query_embedding = generate_embedding(query)
 
     try:
+        with psycopg2.connect(**DB_CONFIG) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT
+                        incident_id,
+                        short_description,
+                        description,
+                        category,
+                        subcategory,
+                        assignment_group,
+                        criticality,
+                        criticality_description,
+                        state,
+                        resolution,
+                        root_cause_analysis,
+                        service,
+                        1 - (embedding <=> %s::vector) AS similarity
+                    FROM incident.incidents
+                    WHERE embedding IS NOT NULL
+                    ORDER BY embedding <=> %s::vector
+                    LIMIT %s;
+                """, (query_embedding, query_embedding, top_k))
 
-        with conn.cursor() as cur:
-
-            cur.execute("""
-                SELECT
-                    incident_id,
-                    short_description,
-                    description,
-                    category,
-                    subcategory,
-                    assignment_group,
-                    criticality,
-                    criticality_description,
-                    state,
-                    resolution,
-                    root_cause_analysis,
-                    service,
-                    1 - (embedding <=> %s::vector)
-                        AS similarity
-
-                FROM incident.incidents
-
-                WHERE embedding IS NOT NULL
-
-                ORDER BY embedding <=> %s::vector
-
-                LIMIT %s;
-            """, (
-                query_embedding,
-                query_embedding,
-                TOP_K
-            ))
-
-            rows = cur.fetchall()
-
-    finally:
-
-        conn.close()
-
-
-    # --------------------------------------------------------
-    # Apply similarity threshold
-    # --------------------------------------------------------
+                rows = cur.fetchall()
+    except psycopg2.Error as e:
+        raise RuntimeError(f"Database query failed: {e}")
 
     results = []
-
     for row in rows:
+        (
+            incident_id, short_description, description, category,
+            subcategory, assignment_group, criticality,
+            criticality_description, state, resolution,
+            root_cause_analysis, service, similarity
+        ) = row
 
-        similarity = float(
-            row[12]
-        )
+        similarity = max(0.0, min(1.0, float(similarity)))
 
-        if similarity >= SIMILARITY_THRESHOLD:
-
+        if similarity >= similarity_threshold:
             results.append({
-                "incident_id": row[0],
-                "short_description": row[1],
-                "description": row[2],
-                "category": row[3],
-                "subcategory": row[4],
-                "assignment_group": row[5],
-                "criticality": row[6],
-                "criticality_description": row[7],
-                "state": row[8],
-                "resolution": row[9],
-                "root_cause_analysis": row[10],
-                "service": row[11],
+                "incident_id": incident_id,
+                "short_description": short_description,
+                "description": description,
+                "category": category,
+                "subcategory": subcategory,
+                "assignment_group": assignment_group,
+                "criticality": criticality,
+                "criticality_description": criticality_description,
+                "state": state,
+                "resolution": resolution,
+                "root_cause_analysis": root_cause_analysis,
+                "service": service,
                 "similarity": similarity
             })
 
