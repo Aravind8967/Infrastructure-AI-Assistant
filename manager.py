@@ -1,6 +1,6 @@
 import requests
 from default_prompts import MANAGER_PROMPT
-from database import generate_sql, db_query
+from database import sql_assistent, vector_search
 
 
 OLLAMA_URL = "http://localhost:11434"
@@ -42,13 +42,13 @@ def chat(question):
     print(f"Route : {route}")
 
     if "SQL" in route:
-        query = generate_sql(question)
-        db_result = db_query(query)
-
-        return db_result
+        result = sql_assistent(question)
+        return result
 
     elif "VECTOR" in route:
-        return "VECTOR"
+        result = vector_search(question)
+        for row in result:
+            print(row)
 
     else:
         return "GENERAL"

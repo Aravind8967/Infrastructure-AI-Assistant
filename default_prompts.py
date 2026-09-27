@@ -98,7 +98,7 @@ SQL_SYSTEM_PROMPT = """
     - DevOps
     - Software
 
-    criticality:
+    criticality:    Intiger
     - 1 = Critical
     - 2 = High
     - 3 = Medium
