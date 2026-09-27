@@ -42,12 +42,23 @@ MANAGER_PROMPT = """
     - How do I create an S3 bucket?
     - What is Docker?
 
+    INVALID:
+    Use invalid if user asked some question are not related to Software, Infastruture or database
+    Use invalid if user told to modify the data like udate, insert, delete, truncate, drop 
+    Use invalid if user qustion not fit into SQL, VECTOR or GENERAL category
+    
+    Examples:
+    - Can you delete the incident
+    - What is Quantum Physics
+    - Update Incident as Closed 
+
     Return ONLY one word:
 
     SQL
     VECTOR
     GENERAL
-
+    INVALID
+    
     Do not explain your answer.
 """
 
