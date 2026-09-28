@@ -49,24 +49,22 @@ class SQLInterface:
         conn = psycopg2.connect(**self.DB_CONFIG)
         try:
             cursor = conn.cursor()
-
             cursor.execute(sql)
-
             rows = cursor.fetchall()
-
             columns = [desc[0] for desc in cursor.description]
 
-            result = [
-                dict(zip(columns, row))
-                for row in rows
-            ]
+            result = []
+            for row in rows[:10]:  # Limit to max 10 records for concise LLM processing
+                row_dict = dict(zip(columns, row))
+                # Explicitly strip out large vector embedding column if present
+                row_dict.pop("embedding", None)
+                result.append(row_dict)
 
             cursor.close()
-
             return result
-        
         except Exception as e:
-            return 'Not able to get the data plese try again'
+            print(f"Database error executing SQL: {e}")
+            return []
         finally:
             conn.close()
 
@@ -96,7 +94,7 @@ class VectorInterface:
         except requests.exceptions.RequestException as e:
             raise RuntimeError(f"Ollama embedding request failed: {e}")
 
-    def vector_search(self, query, top_k=5, similarity_threshold=0.5):
+    def vector_search(self, query, top_k=5, similarity_threshold=0.6):
         query_embedding = self.generate_embedding(query)
 
         try:
@@ -125,7 +123,8 @@ class VectorInterface:
 
                     rows = cur.fetchall()
         except psycopg2.Error as e:
-            raise RuntimeError(f"Database query failed: {e}")
+            print(f"Database query failed during vector search: {e}")
+            return []
 
         results = []
         for row in rows:
@@ -152,7 +151,7 @@ class VectorInterface:
                     "resolution": resolution,
                     "root_cause_analysis": root_cause_analysis,
                     "service": service,
-                    "similarity": similarity
+                    "similarity": round(similarity, 4)
                 })
 
         return results
@@ -176,6 +175,14 @@ class ConversationInterface:
         try:
             cursor = conn.cursor()
 
+            # Check if user exists, otherwise create a default entry for smooth execution
+            cursor.execute("SELECT user_id FROM identity.users WHERE user_id = %s;", (user_id,))
+            if not cursor.fetchone():
+                cursor.execute(
+                    "INSERT INTO identity.users (user_id, user_name, user_role) VALUES (%s, %s, %s);",
+                    (user_id, f"User_{user_id}", "User")
+                )
+
             query = """
                 INSERT INTO conversation.messages
                     (user_id, role, content)
@@ -190,9 +197,12 @@ class ConversationInterface:
 
             conn.commit()
             print(f"{role} message saved to database")
-
+        except Exception as e:
+            conn.rollback()
+            print(f"Error saving conversation message: {e}")
         finally:
             cursor.close()
+            conn.close()
 
     def get_last_messages(self, user_id, limit=5):
         conn = psycopg2.connect(**self.DB_CONFIG)
