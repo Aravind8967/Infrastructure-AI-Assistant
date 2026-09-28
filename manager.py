@@ -69,9 +69,9 @@ class Manager:
             return "GENERAL"
 
     def rewrite_follow_up(self, question, history):
-        """
-        Rewrite a follow-up question into a standalone question using the last 5 messages context.
-        """
+
+        # Rewrite a follow-up question into a standalone question using the last 5 messages context.
+
         conversation_context = []
         for message in history:
             conversation_context.append(
