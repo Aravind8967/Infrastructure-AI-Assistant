@@ -1,6 +1,6 @@
 import re
 import requests
-from default_prompts import MANAGER_PROMPT
+from default_prompts import MANAGER_PROMPT, SQL_SYSTEM_PROMPT
 from database import SQLInterface, VectorInterface, ConversationInterface
 
 
@@ -18,8 +18,12 @@ class Manager:
                 f"{message['role'].upper()}: {message['content']}\n"
             )
 
-        # Deterministic check for standalone Incident ID lookups (e.g., INC20260029) when not a follow-up pronoun
-        if re.search(r'\bINC\d+\b', user_question, re.IGNORECASE) and not any(w in user_question.lower() for w in ['its', 'it', 'that', 'this', 'state', 'resolution', 'root cause', 'status']):
+        print('--------------- Previous Conversaion context ----------------------------')
+        print(''.join(conversation_context))
+        print('-------------------------------------------------------------------------')
+        
+        # Deterministic check for standalone Incident ID lookups (e.g., INC20260465) when not a pronoun reference
+        if re.search(r'\bINC\d+\b', user_question, re.IGNORECASE) and not any(w in user_question.lower() for w in ['its', 'it', 'that', 'this', 'when', 'who', 'state', 'status']):
             if not any(word in user_question.lower() for word in ['delete', 'update', 'drop', 'truncate', 'insert']):
                 return "SQL"
 
@@ -56,7 +60,6 @@ class Manager:
             data = response.json()
             raw_result = data["message"]["content"].strip().upper()
 
-            # Parse route using regex matching to avoid markdown or formatting issues
             match = re.search(r'\b(SQL|VECTOR|GENERAL|FOLLOW_UP|INVALID)\b', raw_result)
             if match:
                 return match.group(1)
@@ -65,25 +68,21 @@ class Manager:
             print(f"Error during classification: {e}")
             return "GENERAL"
 
-    def follow_up(self, question, history):
+    def rewrite_follow_up(self, question, history):
+        """
+        Rewrite a follow-up question into a standalone question using the last 5 messages context.
+        """
         conversation_context = []
-        history_text = ""
         for message in history:
-            formatted = f"{message['role'].upper()}: {message['content']}\n"
-            conversation_context.append(formatted)
-            history_text += formatted
+            conversation_context.append(
+                f"{message['role'].upper()}: {message['content']}\n"
+            )
 
-        # Check if an Incident ID is present in history or question
-        inc_match = re.search(r'\bINC\d+\b', question + " " + history_text, re.IGNORECASE)
-        additional_db_context = ""
-        
-        if inc_match:
-            inc_id = inc_match.group(0).upper()
-            # Fetch complete incident details from DB for exact context
-            db_res = sql_interface.sql_assistent(f"SELECT incident_id, short_description, description, category, subcategory, assignment_group, assigned_to, criticality_description, state, resolution, root_cause_analysis, service FROM incident.incidents WHERE incident_id ILIKE '{inc_id}'")
-            if db_res and isinstance(db_res, list) and len(db_res) > 0:
-                additional_db_context = f"\nRelevant Incident Record ({inc_id}):\n{db_res[0]}\n"
-
+        print('=================== rewrite follow up function called ==============================')
+        print('------- inside that convestion context ------------------')
+        print(''.join(conversation_context))
+        print('---------------------------------------------------------')
+        print('====================================================================================')
         try:
             response = requests.post(
                 f"{OLLAMA_URL}/api/chat",
@@ -93,35 +92,31 @@ class Manager:
                         {
                             "role": "system",
                             "content": (
-                                "You are a precise software engineering and infrastructure assistant. "
-                                "Your primary task is to answer the user's follow-up question by prioritizing the "
-                                "conversation history context (last 5 messages) and any provided incident record.\n\n"
-                                "Instructions:\n"
-                                "1. FIRST, inspect the previous conversation history to determine what topic, concept, or incident "
-                                "the user is referring to (e.g. 'its', 'it', 'that', 'those', 'the previous one').\n"
-                                "2. If the user is asking about a software/technology concept discussed in history (such as Generative AI, Docker, Kubernetes, etc.), "
-                                "provide a comprehensive, factual, and well-structured answer explaining that topic/concept as requested.\n"
-                                "3. If the user is asking about specific incident metrics or database fields (such as state, root cause, resolution, assignment group), "
-                                "answer using the provided incident record or conversation history.\n"
-                                "4. Do NOT say 'data not found in context' when answering follow-up questions about general technical concepts or software topics.\n"
-                                "5. Keep responses factual, direct, structured, and helpful."
+                                "You are an expert query contextualizer.\n"
+                                "Your ONLY task is to rewrite the user's follow-up question into a self-contained, "
+                                "standalone question by replacing ambiguous pronouns or references (such as 'its', 'it', 'this incident', "
+                                "'these incidents', 'from those', 'how many of them', 'who opened it', 'when was it opened') with the exact Incident ID (e.g. INC20260465) or topic from the previous conversation.\n"
+                                "Rules:\n"
+                                "1. Do NOT add extra assumed filters or change the meaning of the question.\n"
+                                "2. Simply substitute 'this incident' or 'it' with the specific Incident ID (e.g., INC20260465).\n"
+                                "3. Do NOT answer the question or output code blocks.\n"
+                                "Return ONLY the rewritten standalone question."
                             )
                         },
                         {
                             "role": "user",
                             "content": (
-                                f"Previous conversation (last 5 messages):\n"
+                                f"Previous conversation:\n"
                                 f"{''.join(conversation_context)}\n"
-                                f"{additional_db_context}"
-                                f"Follow-up question:\n"
-                                f"{question}"
+                                f"Follow-up question: {question}\n"
+                                f"Standalone question:"
                             )
                         }
                     ],
                     "stream": False,
                     "options": {
-                        "num_predict": 300,
-                        "temperature": 0.1
+                        "num_predict": 80,
+                        "temperature": 0.0
                     }
                 },
                 timeout=120
@@ -129,9 +124,34 @@ class Manager:
 
             response.raise_for_status()
             data = response.json()
-            return data.get("message", {}).get("content", "").strip()
+            rewritten = data.get("message", {}).get("content", "").strip()
+            rewritten = re.sub(r'```.*?\n', '', rewritten).replace('```', '').strip()
+            return rewritten if rewritten else question
         except Exception as e:
-            return f"Error processing follow-up: {e}"
+            print(f"Error rewriting follow-up: {e}")
+            return question
+
+    def follow_up(self, question, history):
+        # Step 1: Rewrite follow-up into a standalone question using conversation history
+        standalone_q = self.rewrite_follow_up(question, history)
+        print(f"Rewritten Follow-up Query: {standalone_q}")
+
+        # Step 2: Determine appropriate route for the rewritten question
+        sub_route = self.classify_query(standalone_q, [])
+        print(f"Sub-route for follow-up: {sub_route}")
+
+        # Step 3: Fetch data or execute query based on sub-route
+        if sub_route == "SQL" or "incident" in standalone_q.lower() or re.search(r'\bINC\d+\b', standalone_q, re.I) or any(w in standalone_q.lower() for w in ['count', 'how many', 'who opened', 'when opened']):
+            raw_result = sql_interface.sql_assistent(standalone_q)
+            return self.draft_answer(question, raw_result)
+        elif sub_route == "VECTOR":
+            raw_result = vector_interface.vector_search(standalone_q, top_k=5, similarity_threshold=0.6)
+            return self.draft_answer(question, raw_result)
+        elif sub_route == "GENERAL":
+            return self.general(standalone_q)
+        else:
+            raw_result = sql_interface.sql_assistent(standalone_q)
+            return self.draft_answer(question, raw_result)
 
     def general(self, question):
         try:
@@ -171,7 +191,6 @@ class Manager:
             return f"Error contacting Ollama: {e}"
 
     def draft_answer(self, question, raw_result):
-        # Anti-hallucination check: If no data returned from SQL or Vector search
         if not raw_result or raw_result == [] or raw_result == "Not able to get the data plese try again":
             return "No relevant incident data found in the database matching your query."
 
@@ -187,8 +206,8 @@ class Manager:
                                 "You are a precise infrastructure assistant. "
                                 "Take the raw data provided and draft a short, factual, "
                                 "and well-organized answer to the user's question. "
-                                "Do NOT hallucinate or add unmentioned details. "
-                                "If raw data is empty, state clearly that no data was found."
+                                "Do NOT output code blocks or tool calls (e.g. incident_search, ```tool ````). "
+                                "Do NOT hallucinate or add unmentioned details."
                             )
                         },
                         {
@@ -264,4 +283,4 @@ if __name__ == "__main__":
             break
         else:
             result = manager.chat(user_id, ask)
-            print(f"Result: {result}")
+            print(f"Result: {result}")
