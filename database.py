@@ -96,7 +96,7 @@ class VectorInterface:
         except requests.exceptions.RequestException as e:
             raise RuntimeError(f"Ollama embedding request failed: {e}")
 
-    def vector_search(self, query, top_k=5, similarity_threshold=0.5):
+    def vector_search(self, query, top_k=5, similarity_threshold=0.6):
         query_embedding = self.generate_embedding(query)
 
         try:
