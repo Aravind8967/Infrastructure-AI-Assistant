@@ -1,10 +1,8 @@
 import requests
 import psycopg2
+import logging
 
-
-# ============================================================
-# CONFIGURATION
-# ============================================================
+logger = logging.getLogger("incident_backend.embedding_store")
 
 OLLAMA_URL = "http://localhost:11434"
 EMBEDDING_MODEL = "nomic-embed-text:latest"
@@ -18,17 +16,10 @@ DB_CONFIG = {
 }
 
 
-# ============================================================
-# STEP 1: GET ONE INCIDENT FROM POSTGRESQL
-# ============================================================
-
 def get_incident():
-
     conn = psycopg2.connect(**DB_CONFIG)
-
     try:
         with conn.cursor() as cur:
-
             cur.execute("""
                 SELECT
                     incident_id,
@@ -38,9 +29,7 @@ def get_incident():
                 ORDER BY incident_id
                 LIMIT 1;
             """)
-
             row = cur.fetchone()
-
             if row is None:
                 return None
 
@@ -48,19 +37,12 @@ def get_incident():
                 "incident_id": row[0],
                 "document_text": row[1]
             }
-
     finally:
         conn.close()
 
 
-# ============================================================
-# STEP 2: SEND TEXT TO OLLAMA
-# ============================================================
-
 def generate_embedding(text):
-
     url = f"{OLLAMA_URL}/api/embed"
-
     payload = {
         "model": EMBEDDING_MODEL,
         "input": text
@@ -71,25 +53,15 @@ def generate_embedding(text):
         json=payload,
         timeout=120
     )
-
     response.raise_for_status()
-
     data = response.json()
-
     return data["embeddings"][0]
 
 
-# ============================================================
-# STEP 3: STORE EMBEDDING IN POSTGRESQL
-# ============================================================
-
 def store_embedding(incident_id, embedding):
-
     conn = psycopg2.connect(**DB_CONFIG)
-
     try:
         with conn.cursor() as cur:
-
             cur.execute("""
                 UPDATE incident.incidents
                 SET embedding = %s
@@ -98,60 +70,27 @@ def store_embedding(incident_id, embedding):
                 embedding,
                 incident_id
             ))
-
         conn.commit()
-
     finally:
         conn.close()
 
 
-# ============================================================
-# MAIN
-# ============================================================
-
 def main():
-
-    print("Getting one incident from database...")
-
+    logger.info("Getting one incident from database...")
     incident = get_incident()
 
     if incident is None:
-        print("No incident found without an embedding.")
+        logger.info("No incident found without an embedding.")
         return
 
-    print(f"----------------- Incident ID: {incident['incident_id']} ---------------------")
+    logger.info(f"Generating embedding for Incident ID: {incident['incident_id']}")
+    embedding = generate_embedding(incident["document_text"])
+    logger.info(f"Embedding generated. Vector dimensions: {len(embedding)}")
 
-    print("\nGenerating embedding using Ollama...")
-
-    embedding = generate_embedding(
-        incident["document_text"]
-    )
-
-    print(f"Embedding generated.")
-    print(f"Vector dimensions: {len(embedding)}")
-
-    print("\nFirst 5 values:")
-    print(embedding[:5])
-
-    print("\nLast 5 values:")
-    print(embedding[-5:])
-
-    print("\nStoring embedding in PostgreSQL...")
-
-    store_embedding(
-        incident["incident_id"],
-        embedding
-    )
-
-    print(
-        f"Embedding successfully stored for "
-        f"{incident['incident_id']}"
-    )
-
-    print('------------------------------------------------------------------------------')
+    store_embedding(incident["incident_id"], embedding)
+    logger.info(f"Embedding successfully stored for {incident['incident_id']}")
 
 
 if __name__ == "__main__":
-    
     for i in range(483):
         main()

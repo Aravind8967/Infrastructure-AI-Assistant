@@ -1,7 +1,10 @@
-import json, os
+import json
+import os
 import psycopg2
+import logging
 from psycopg2.extras import execute_batch
 
+logger = logging.getLogger("incident_backend.load_data")
 
 DB_CONFIG = {
     "host": "localhost",
@@ -11,15 +14,14 @@ DB_CONFIG = {
     "password": "ingest_password",
 }
 
-JSON_FILE = "incident_management_500.json"
+# Resolve file path relative to this script's directory
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+JSON_FILE = os.path.join(SCRIPT_DIR, "incident_management_500.json")
+if not os.path.exists(JSON_FILE):
+    JSON_FILE = os.path.join(os.path.dirname(SCRIPT_DIR), "incident_management_500.json")
 
 
 def build_document_text(incident):
-    """
-    Convert structured incident information into a text document
-    that we will later send to the embedding model.
-    """
-
     return f"""
 Incident ID: {incident["incident_id"]}
 
@@ -101,7 +103,6 @@ def validate_incident(incident):
 
 def prepare_incident(incident):
     validate_incident(incident)
-
     document_text = build_document_text(incident)
 
     return (
@@ -173,10 +174,12 @@ def insert_incidents(incidents):
 
         connection.commit()
 
+        logger.info(f"Successfully inserted {len(rows)} incidents.")
         print(f"Successfully inserted {len(rows)} incidents.")
 
-    except Exception:
+    except Exception as e:
         connection.rollback()
+        logger.error(f"Failed to insert incidents: {e}")
         raise
 
     finally:
@@ -187,9 +190,9 @@ def insert_incidents(incidents):
 def main():
     dataset, incidents = load_json()
 
-    print(f"Dataset: {dataset['dataset_name']}")
-    print(f"Expected records: {dataset['record_count']}")
-    print(f"Records found: {len(incidents)}")
+    logger.info(f"Dataset: {dataset['dataset_name']}")
+    logger.info(f"Expected records: {dataset['record_count']}")
+    logger.info(f"Records found: {len(incidents)}")
 
     if len(incidents) != dataset["record_count"]:
         raise ValueError(
@@ -200,12 +203,5 @@ def main():
     insert_incidents(incidents)
 
 
-
-
 if __name__ == "__main__":
     main()
-
-    # with open(JSON_FILE, 'r', encoding="utf-8") as f:
-    #     data = json.load(f)
-
-    # print(data)

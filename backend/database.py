@@ -1,15 +1,17 @@
 import requests
 import psycopg2
 import re
+import logging
 from default_prompts import SQL_SYSTEM_PROMPT
 
+logger = logging.getLogger("incident_backend.database")
 
 OLLAMA_URL = "http://localhost:11434"
 MODEL = "gemma3:4b-it-q4_K_M"
 EMBEDDING_MODEL = "nomic-embed-text:latest"
 
 
-# ================================= SQl =====================================
+# ================================= SQL =====================================
 class SQLInterface:
     def __init__(self):
         self.DB_CONFIG = {
@@ -41,9 +43,9 @@ class SQLInterface:
 
         return sql
 
-
     def sql_assistent(self, question):
         sql = self.generate_sql(question)
+        logger.info(f"Generated SQL: {sql}")
         print(f"Generated sql : {sql}")
 
         conn = psycopg2.connect(**self.DB_CONFIG)
@@ -63,6 +65,7 @@ class SQLInterface:
             cursor.close()
             return result
         except Exception as e:
+            logger.error(f"Database error executing SQL: {e}")
             print(f"Database error executing SQL: {e}")
             return []
         finally:
@@ -92,6 +95,7 @@ class VectorInterface:
             data = response.json()
             return data["embeddings"][0]
         except requests.exceptions.RequestException as e:
+            logger.error(f"Ollama embedding request failed: {e}")
             raise RuntimeError(f"Ollama embedding request failed: {e}")
 
     def vector_search(self, query, top_k=5, similarity_threshold=0.6):
@@ -123,6 +127,7 @@ class VectorInterface:
 
                     rows = cur.fetchall()
         except psycopg2.Error as e:
+            logger.error(f"Database query failed during vector search: {e}")
             print(f"Database query failed during vector search: {e}")
             return []
 
@@ -196,9 +201,11 @@ class ConversationInterface:
             )
 
             conn.commit()
+            logger.info(f"{role} message saved to database for user_id={user_id}")
             print(f"{role} message saved to database")
         except Exception as e:
             conn.rollback()
+            logger.error(f"Error saving conversation message: {e}")
             print(f"Error saving conversation message: {e}")
         finally:
             cursor.close()
@@ -238,13 +245,14 @@ class ConversationInterface:
                 {
                     "role": row[0],
                     "content": row[1],
-                    "created_at": row[2]
+                    "created_at": str(row[2])
                 }
                 for row in rows
             ]
 
         finally:
             conn.close()
+
 
 class UserInterface:
     def __init__(self):
@@ -264,14 +272,24 @@ class UserInterface:
             query = """
                 INSERT INTO identity.users (user_name, user_role)
                 VALUES (%s, %s)
+                RETURNING user_id, user_name, user_role, created_at;
             """
 
             cursor.execute(query, (user_name, user_role))
+            created_user = cursor.fetchone()
             conn.commit()
 
+            logger.info(f"New User created username: {user_name}")
             print(f"New User created username : {user_name}")
+            return {
+                'user_id': created_user[0],
+                'user_name': created_user[1],
+                'user_role': created_user[2],
+                'created_at': str(created_user[3])
+            }
         finally:
             cursor.close()
+            conn.close()
 
     def get_user(self, user_name):
         conn = psycopg2.connect(**self.DB_CONFIG)
@@ -279,25 +297,26 @@ class UserInterface:
         try:
             cursor = conn.cursor()
             query = """
-                SELECT * from identity.users 
-                WHERE user_name like %s
+                SELECT user_id, user_name, user_role, created_at from identity.users 
+                WHERE user_name ILIKE %s
             """
             cursor.execute(query, (user_name,))
             user = cursor.fetchone()
 
             if user:
                 return {
-                    'user_id' : user[0],
-                    'user_name' : user[1],
-                    'user_role' : user[2] 
+                    'user_id': user[0],
+                    'user_name': user[1],
+                    'user_role': user[2],
+                    'created_at': str(user[3])
                 }
             else:
                 return None
 
         finally:
-            conn.close()   
+            conn.close()
+
 
 if __name__ == '__main__':
     user = ConversationInterface()
-
     print(user.get_last_messages(2))

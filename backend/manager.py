@@ -1,14 +1,17 @@
 import re
 import requests
+import logging
 from default_prompts import MANAGER_PROMPT, SQL_SYSTEM_PROMPT
 from database import SQLInterface, VectorInterface, ConversationInterface
 
+logger = logging.getLogger("incident_backend.manager")
 
 OLLAMA_URL = "http://localhost:11434"
 LLM_MODEL = "gemma3:4b-it-q4_K_M"
 sql_interface = SQLInterface()
 vector_interface = VectorInterface()
 conversation = ConversationInterface()
+
 
 class Manager:
     def classify_query(self, user_question, history):
@@ -18,13 +21,12 @@ class Manager:
                 f"{message['role'].upper()}: {message['content']}\n"
             )
 
-        print('--------------- Previous Conversaion context ----------------------------')
-        print(''.join(conversation_context))
-        print('-------------------------------------------------------------------------')
+        logger.info(f"Classifying query context length: {len(history)} messages")
         
         # Deterministic check for standalone Incident ID lookups (e.g., INC20260465) when not a pronoun reference
         if re.search(r'\bINC\d+\b', user_question, re.IGNORECASE) and not any(w in user_question.lower() for w in ['its', 'it', 'that', 'this', 'when', 'who', 'state', 'status']):
             if not any(word in user_question.lower() for word in ['delete', 'update', 'drop', 'truncate', 'insert']):
+                logger.info("Deterministic rule triggered: SQL classification")
                 return "SQL"
 
         try:
@@ -62,27 +64,24 @@ class Manager:
 
             match = re.search(r'\b(SQL|VECTOR|GENERAL|FOLLOW_UP|INVALID)\b', raw_result)
             if match:
-                return match.group(1)
+                route = match.group(1)
+                logger.info(f"Classification result: {route}")
+                return route
+            logger.info("Classification fallback to GENERAL")
             return "GENERAL"
         except Exception as e:
+            logger.error(f"Error during classification: {e}")
             print(f"Error during classification: {e}")
             return "GENERAL"
 
     def rewrite_follow_up(self, question, history):
-
-        # Rewrite a follow-up question into a standalone question using the last 5 messages context.
-
         conversation_context = []
         for message in history:
             conversation_context.append(
                 f"{message['role'].upper()}: {message['content']}\n"
             )
 
-        print('=================== rewrite follow up function called ==============================')
-        print('------- inside that convestion context ------------------')
-        print(''.join(conversation_context))
-        print('---------------------------------------------------------')
-        print('====================================================================================')
+        logger.info("Rewriting follow-up question using context")
         try:
             response = requests.post(
                 f"{OLLAMA_URL}/api/chat",
@@ -126,21 +125,18 @@ class Manager:
             data = response.json()
             rewritten = data.get("message", {}).get("content", "").strip()
             rewritten = re.sub(r'```.*?\n', '', rewritten).replace('```', '').strip()
+            logger.info(f"Rewritten query: '{rewritten}'")
             return rewritten if rewritten else question
         except Exception as e:
+            logger.error(f"Error rewriting follow-up: {e}")
             print(f"Error rewriting follow-up: {e}")
             return question
 
     def follow_up(self, question, history):
-        # Step 1: Rewrite follow-up into a standalone question using conversation history
         standalone_q = self.rewrite_follow_up(question, history)
-        print(f"Rewritten Follow-up Query: {standalone_q}")
-
-        # Step 2: Determine appropriate route for the rewritten question
         sub_route = self.classify_query(standalone_q, [])
-        print(f"Sub-route for follow-up: {sub_route}")
+        logger.info(f"Follow-up sub-route determined: {sub_route}")
 
-        # Step 3: Fetch data or execute query based on sub-route
         if sub_route == "SQL" or "incident" in standalone_q.lower() or re.search(r'\bINC\d+\b', standalone_q, re.I) or any(w in standalone_q.lower() for w in ['count', 'how many', 'who opened', 'when opened']):
             raw_result = sql_interface.sql_assistent(standalone_q)
             return self.draft_answer(question, raw_result)
@@ -154,6 +150,7 @@ class Manager:
             return self.draft_answer(question, raw_result)
 
     def general(self, question):
+        logger.info("Executing GENERAL query handler via Ollama")
         try:
             response = requests.post(
                 f"{OLLAMA_URL}/api/chat",
@@ -188,6 +185,7 @@ class Manager:
             else:
                 return "Facing an issue, please try again."
         except requests.exceptions.RequestException as e:
+            logger.error(f"Error contacting Ollama: {e}")
             return f"Error contacting Ollama: {e}"
 
     def draft_answer(self, question, raw_result):
@@ -227,12 +225,14 @@ class Manager:
             data = response.json()
             return data.get("message", {}).get("content", "").strip()
         except Exception as e:
+            logger.error(f"Error drafting answer: {e}")
             return f"Error drafting answer: {e}"
 
     def chat(self, user_id, question):
+        logger.info(f"Processing chat request - user_id: {user_id}, question: '{question}'")
         history = conversation.get_last_messages(user_id, limit=5)
         route = self.classify_query(question, history)
-        print(f"Route : {route}")
+        logger.info(f"Route selected: {route}")
 
         if route == "SQL":
             raw_result = sql_interface.sql_assistent(question)
@@ -270,7 +270,8 @@ class Manager:
         # Store assistant response
         conversation.save_message(user_id, "assistant", answer)
 
-        return answer
+        logger.info(f"Chat complete for user_id: {user_id}. Answer length: {len(answer)}")
+        return answer, route
 
 
 if __name__ == "__main__":
@@ -282,5 +283,6 @@ if __name__ == "__main__":
         if ask == 'stop':
             break
         else:
-            result = manager.chat(user_id, ask)
+            result, route = manager.chat(user_id, ask)
+            print(f"Route: {route}")
             print(f"Result: {result}")
