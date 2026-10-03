@@ -1,0 +1,175 @@
+2026-10-03 05:24:15,871 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 05:26:58,556 [INFO] [incident_backend.api]: [TRANSACTION START] GET / | Params:  | Client: 127.0.0.1
+2026-10-03 05:26:58,562 [INFO] [incident_backend.api]: [TRANSACTION END] GET / | Status: 200 | Duration: 5.65ms | Client: 127.0.0.1
+2026-10-03 05:28:16,656 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/history/1 | Params:  | Client: 127.0.0.1
+2026-10-03 05:28:16,735 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/history/1 | Status: 200 | Duration: 78.75ms | Client: 127.0.0.1
+2026-10-03 05:28:20,342 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/history/2 | Params:  | Client: 127.0.0.1
+2026-10-03 05:28:20,379 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/history/2 | Status: 200 | Duration: 37.08ms | Client: 127.0.0.1
+2026-10-03 05:28:53,867 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/users | Params:  | Client: 127.0.0.1
+2026-10-03 05:28:53,868 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/users | Status: 405 | Duration: 0.0ms | Client: 127.0.0.1
+2026-10-03 05:29:13,974 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/users/Aravind | Params:  | Client: 127.0.0.1
+2026-10-03 05:29:14,001 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/users/Aravind | Status: 200 | Duration: 27.14ms | Client: 127.0.0.1
+2026-10-03 05:29:21,211 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/users/Varun | Params:  | Client: 127.0.0.1
+2026-10-03 05:29:21,228 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/users/Varun | Status: 200 | Duration: 16.61ms | Client: 127.0.0.1
+2026-10-03 05:29:26,391 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/users/Varsha | Params:  | Client: 127.0.0.1
+2026-10-03 05:29:26,430 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/users/Varsha | Status: 404 | Duration: 39.81ms | Client: 127.0.0.1
+2026-10-03 05:34:45,245 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 05:34:48,838 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 05:38:10,829 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/chat | Params:  | Client: 127.0.0.1
+2026-10-03 05:38:10,837 [INFO] [incident_backend.api]: Processing chat endpoint for user_id=1
+2026-10-03 05:38:10,837 [INFO] [incident_backend.manager]: Processing chat request - user_id: 1, question: 'how many incidents assigned to Aravind Chindi'
+2026-10-03 05:38:10,860 [INFO] [incident_backend.manager]: Classifying query context length: 0 messages
+2026-10-03 05:39:05,280 [INFO] [incident_backend.manager]: Classification result: SQL
+2026-10-03 05:39:05,281 [INFO] [incident_backend.manager]: Route selected: SQL
+2026-10-03 05:39:53,741 [INFO] [incident_backend.database]: Generated SQL: SELECT COUNT(*)
+FROM incident.incidents
+WHERE assigned_to ILIKE '%Aravind Chindi%';
+2026-10-03 05:40:02,313 [INFO] [incident_backend.database]: user message saved to database for user_id=1
+2026-10-03 05:40:02,353 [INFO] [incident_backend.database]: assistant message saved to database for user_id=1
+2026-10-03 05:40:02,355 [INFO] [incident_backend.manager]: Chat complete for user_id: 1. Answer length: 50
+2026-10-03 05:40:02,357 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 200 | Duration: 111527.79ms | Client: 127.0.0.1
+2026-10-03 05:45:06,229 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/chat | Params:  | Client: 127.0.0.1
+2026-10-03 05:45:06,230 [INFO] [incident_backend.api]: Processing chat endpoint for user_id=1
+2026-10-03 05:45:06,230 [INFO] [incident_backend.manager]: Processing chat request - user_id: 1, question: 'How many incidents are assigned to priya nair'
+2026-10-03 05:45:06,260 [INFO] [incident_backend.manager]: Classifying query context length: 2 messages
+2026-10-03 05:45:56,163 [INFO] [incident_backend.manager]: Classification result: SQL
+2026-10-03 05:45:56,164 [INFO] [incident_backend.manager]: Route selected: SQL
+2026-10-03 05:46:38,513 [INFO] [incident_backend.database]: Generated SQL: SELECT COUNT(*)
+FROM incident.incidents
+WHERE assigned_to ILIKE '%Priya Nair%';
+2026-10-03 05:46:46,425 [INFO] [incident_backend.database]: user message saved to database for user_id=1
+2026-10-03 05:46:46,459 [INFO] [incident_backend.database]: assistant message saved to database for user_id=1
+2026-10-03 05:46:46,460 [INFO] [incident_backend.manager]: Chat complete for user_id: 1. Answer length: 44
+2026-10-03 05:46:46,461 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 200 | Duration: 100232.06ms | Client: 127.0.0.1
+2026-10-03 05:54:12,357 [INFO] [incident_backend.api]: [TRANSACTION START] POST /users | Params:  | Client: 127.0.0.1
+2026-10-03 05:54:12,362 [INFO] [incident_backend.api]: [TRANSACTION END] POST /users | Status: 404 | Duration: 4.89ms | Client: 127.0.0.1
+2026-10-03 05:54:27,825 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/chat | Params:  | Client: 127.0.0.1
+2026-10-03 05:54:27,825 [INFO] [incident_backend.api]: Processing chat endpoint for user_id=2
+2026-10-03 05:54:27,825 [INFO] [incident_backend.manager]: Processing chat request - user_id: 2, question: 'How many incidents open incidets present which are assigned to meera joshi'
+2026-10-03 05:54:27,849 [INFO] [incident_backend.manager]: Classifying query context length: 4 messages
+2026-10-03 05:55:03,606 [INFO] [incident_backend.manager]: Classification result: FOLLOW_UP
+2026-10-03 05:55:03,606 [INFO] [incident_backend.manager]: Route selected: FOLLOW_UP
+2026-10-03 05:55:03,606 [INFO] [incident_backend.manager]: Rewriting follow-up question using context
+2026-10-03 05:55:17,385 [INFO] [incident_backend.manager]: Rewritten query: 'How many incidents open incidents present which are assigned to meera joshi INC20260465?'
+2026-10-03 05:55:17,386 [INFO] [incident_backend.manager]: Classifying query context length: 0 messages
+2026-10-03 05:55:17,386 [INFO] [incident_backend.manager]: Deterministic rule triggered: SQL classification
+2026-10-03 05:55:17,386 [INFO] [incident_backend.manager]: Follow-up sub-route determined: SQL
+2026-10-03 05:56:04,587 [INFO] [incident_backend.database]: Generated SQL: SELECT COUNT(*)
+FROM incident.incidents
+WHERE state ILIKE 'Open'
+AND assigned_to ILIKE '%Meera Joshi%'
+AND incident_id ILIKE 'INC20260465';
+2026-10-03 05:56:11,287 [INFO] [incident_backend.database]: user message saved to database for user_id=2
+2026-10-03 05:56:11,311 [INFO] [incident_backend.database]: assistant message saved to database for user_id=2
+2026-10-03 05:56:11,311 [INFO] [incident_backend.manager]: Chat complete for user_id: 2. Answer length: 64
+2026-10-03 05:56:11,313 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 200 | Duration: 103487.09ms | Client: 127.0.0.1
+2026-10-03 05:58:04,470 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/chat | Params:  | Client: 127.0.0.1
+2026-10-03 05:58:04,482 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 422 | Duration: 11.58ms | Client: 127.0.0.1
+2026-10-03 05:58:18,447 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/chat | Params:  | Client: 127.0.0.1
+2026-10-03 05:58:18,448 [INFO] [incident_backend.api]: Processing chat endpoint for user_id=2
+2026-10-03 05:58:18,449 [INFO] [incident_backend.manager]: Processing chat request - user_id: 2, question: 'How many incidents open incidets present which are assigned to meera joshi'
+2026-10-03 05:58:18,492 [INFO] [incident_backend.manager]: Classifying query context length: 0 messages
+2026-10-03 05:58:34,278 [INFO] [incident_backend.manager]: Classification result: FOLLOW_UP
+2026-10-03 05:58:34,279 [INFO] [incident_backend.manager]: Route selected: FOLLOW_UP
+2026-10-03 05:58:34,279 [INFO] [incident_backend.manager]: Rewriting follow-up question using context
+2026-10-03 05:58:45,060 [INFO] [incident_backend.manager]: Rewritten query: 'How many incidents open assigned to Meera Joshi? INC20260465'
+2026-10-03 05:58:45,087 [INFO] [incident_backend.manager]: Classifying query context length: 0 messages
+2026-10-03 05:58:45,087 [INFO] [incident_backend.manager]: Deterministic rule triggered: SQL classification
+2026-10-03 05:58:45,087 [INFO] [incident_backend.manager]: Follow-up sub-route determined: SQL
+2026-10-03 05:59:10,065 [INFO] [incident_backend.database]: Generated SQL: SELECT COUNT(*)
+FROM incident.incidents
+WHERE state ILIKE 'Open' AND assigned_to ILIKE '%Meera Joshi%';
+2026-10-03 05:59:16,818 [INFO] [incident_backend.database]: user message saved to database for user_id=2
+2026-10-03 05:59:16,848 [INFO] [incident_backend.database]: assistant message saved to database for user_id=2
+2026-10-03 05:59:16,849 [INFO] [incident_backend.manager]: Chat complete for user_id: 2. Answer length: 52
+2026-10-03 05:59:16,851 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 200 | Duration: 58404.68ms | Client: 127.0.0.1
+2026-10-03 06:00:32,050 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/chat | Params:  | Client: 127.0.0.1
+2026-10-03 06:00:32,052 [INFO] [incident_backend.api]: Processing chat endpoint for user_id=2
+2026-10-03 06:00:32,052 [INFO] [incident_backend.manager]: Processing chat request - user_id: 2, question: 'from these incidents how many of them are related to ec2 health check failuer'
+2026-10-03 06:00:32,087 [INFO] [incident_backend.manager]: Classifying query context length: 2 messages
+2026-10-03 06:00:49,282 [INFO] [incident_backend.manager]: Classification result: FOLLOW_UP
+2026-10-03 06:00:49,283 [INFO] [incident_backend.manager]: Route selected: FOLLOW_UP
+2026-10-03 06:00:49,283 [INFO] [incident_backend.manager]: Rewriting follow-up question using context
+2026-10-03 06:01:02,009 [INFO] [incident_backend.manager]: Rewritten query: 'How many of the 10 open incidents assigned to Meera Joshi are related to ec2 health check failure?'
+2026-10-03 06:01:02,010 [INFO] [incident_backend.manager]: Classifying query context length: 0 messages
+2026-10-03 06:01:20,570 [INFO] [incident_backend.manager]: Classification result: SQL
+2026-10-03 06:01:20,570 [INFO] [incident_backend.manager]: Follow-up sub-route determined: SQL
+2026-10-03 06:01:49,055 [INFO] [incident_backend.database]: Generated SQL: SELECT COUNT(*)
+FROM incident.incidents
+WHERE state ILIKE 'Open'
+  AND assigned_to ILIKE '%Meera Joshi%'
+  AND category ILIKE 'Cloud'
+  AND short_description ILIKE '%ec2 health check failure%';
+2026-10-03 06:01:55,267 [INFO] [incident_backend.database]: user message saved to database for user_id=2
+2026-10-03 06:01:55,298 [INFO] [incident_backend.database]: assistant message saved to database for user_id=2
+2026-10-03 06:01:55,298 [INFO] [incident_backend.manager]: Chat complete for user_id: 2. Answer length: 57
+2026-10-03 06:01:55,299 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 200 | Duration: 83249.55ms | Client: 127.0.0.1
+2026-10-03 06:05:47,640 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/chat | Params:  | Client: 127.0.0.1
+2026-10-03 06:05:47,641 [INFO] [incident_backend.api]: Processing chat endpoint for user_id=2
+2026-10-03 06:05:47,641 [INFO] [incident_backend.manager]: Processing chat request - user_id: 2, question: 'do we see any duplicate alerts generation incidents earliar'
+2026-10-03 06:05:47,678 [INFO] [incident_backend.manager]: Classifying query context length: 4 messages
+2026-10-03 06:06:06,215 [INFO] [incident_backend.manager]: Classification result: VECTOR
+2026-10-03 06:06:06,216 [INFO] [incident_backend.manager]: Route selected: VECTOR
+2026-10-03 06:06:50,573 [INFO] [incident_backend.database]: user message saved to database for user_id=2
+2026-10-03 06:06:50,593 [INFO] [incident_backend.database]: assistant message saved to database for user_id=2
+2026-10-03 06:06:50,594 [INFO] [incident_backend.manager]: Chat complete for user_id: 2. Answer length: 427
+2026-10-03 06:06:50,595 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 200 | Duration: 62954.82ms | Client: 127.0.0.1
+2026-10-03 06:08:16,819 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/chat | Params:  | Client: 127.0.0.1
+2026-10-03 06:08:16,820 [INFO] [incident_backend.api]: Processing chat endpoint for user_id=2
+2026-10-03 06:08:16,820 [INFO] [incident_backend.manager]: Processing chat request - user_id: 2, question: 'from these incidents how many incidents are still in progress'
+2026-10-03 06:08:16,854 [INFO] [incident_backend.manager]: Classifying query context length: 5 messages
+2026-10-03 06:08:40,075 [INFO] [incident_backend.manager]: Classification result: FOLLOW_UP
+2026-10-03 06:08:40,075 [INFO] [incident_backend.manager]: Route selected: FOLLOW_UP
+2026-10-03 06:08:40,075 [INFO] [incident_backend.manager]: Rewriting follow-up question using context
+2026-10-03 06:09:02,313 [INFO] [incident_backend.manager]: Rewritten query: 'do we see any duplicate alerts generation incidents earlier INC20250245, INC20260354, INC20260206, INC20260288, INC20250174 still in progress'
+2026-10-03 06:09:02,314 [INFO] [incident_backend.manager]: Classifying query context length: 0 messages
+2026-10-03 06:09:02,314 [INFO] [incident_backend.manager]: Deterministic rule triggered: SQL classification
+2026-10-03 06:09:02,315 [INFO] [incident_backend.manager]: Follow-up sub-route determined: SQL
+2026-10-03 06:09:40,883 [INFO] [incident_backend.database]: Generated SQL: SELECT
+  incident_id
+FROM incident.incidents
+WHERE
+  state ILIKE 'In Progress'
+AND
+  incident_id ILIKE 'INC20250245'
+OR
+  incident_id ILIKE 'INC20260354'
+OR
+  incident_id ILIKE 'INC20260206'
+OR
+  incident_id ILIKE 'INC20260288'
+OR
+  incident_id ILIKE 'INC20250174';
+2026-10-03 06:09:48,648 [INFO] [incident_backend.database]: user message saved to database for user_id=2
+2026-10-03 06:09:48,691 [INFO] [incident_backend.database]: assistant message saved to database for user_id=2
+2026-10-03 06:09:48,691 [INFO] [incident_backend.manager]: Chat complete for user_id: 2. Answer length: 47
+2026-10-03 06:09:48,692 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 200 | Duration: 91873.42ms | Client: 127.0.0.1
+2026-10-03 06:11:20,223 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/chat | Params:  | Client: 127.0.0.1
+2026-10-03 06:11:20,224 [INFO] [incident_backend.api]: Processing chat endpoint for user_id=2
+2026-10-03 06:11:20,224 [INFO] [incident_backend.manager]: Processing chat request - user_id: 2, question: 'can you give me he root cause and resulation for these incidents'
+2026-10-03 06:11:20,258 [INFO] [incident_backend.manager]: Classifying query context length: 5 messages
+2026-10-03 06:11:38,868 [INFO] [incident_backend.manager]: Classification result: FOLLOW_UP
+2026-10-03 06:11:38,868 [INFO] [incident_backend.manager]: Route selected: FOLLOW_UP
+2026-10-03 06:11:38,868 [INFO] [incident_backend.manager]: Rewriting follow-up question using context
+2026-10-03 06:12:01,541 [INFO] [incident_backend.manager]: Rewritten query: 'Can you give me the root cause and resolution for INC20250245, INC20260354, INC20260206, INC20260288 and INC20250174?'
+2026-10-03 06:12:01,541 [INFO] [incident_backend.manager]: Classifying query context length: 0 messages
+2026-10-03 06:12:01,541 [INFO] [incident_backend.manager]: Deterministic rule triggered: SQL classification
+2026-10-03 06:12:01,541 [INFO] [incident_backend.manager]: Follow-up sub-route determined: SQL
+2026-10-03 06:12:36,217 [INFO] [incident_backend.database]: Generated SQL: SELECT root_cause_analysis, resolution
+FROM incident.incidents
+WHERE incident_id ILIKE 'INC20250245' OR incident_id ILIKE 'INC20260354' OR incident_id ILIKE 'INC20260206' OR incident_id ILIKE 'INC20260288' OR incident_id ILIKE 'INC20250174';
+2026-10-03 06:12:50,685 [INFO] [incident_backend.database]: user message saved to database for user_id=2
+2026-10-03 06:12:50,715 [INFO] [incident_backend.database]: assistant message saved to database for user_id=2
+2026-10-03 06:12:50,716 [INFO] [incident_backend.manager]: Chat complete for user_id: 2. Answer length: 214
+2026-10-03 06:12:50,717 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 200 | Duration: 90494.21ms | Client: 127.0.0.1
+2026-10-03 06:15:53,706 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/chat | Params:  | Client: 127.0.0.1
+2026-10-03 06:15:53,708 [INFO] [incident_backend.api]: Processing chat endpoint for user_id=2
+2026-10-03 06:15:53,709 [INFO] [incident_backend.manager]: Processing chat request - user_id: 2, question: 'how to setup cpu utilization alert to an EC2 instance tell me the tools i can use'
+2026-10-03 06:15:53,745 [INFO] [incident_backend.manager]: Classifying query context length: 5 messages
+2026-10-03 06:16:12,943 [INFO] [incident_backend.manager]: Classification result: GENERAL
+2026-10-03 06:16:12,943 [INFO] [incident_backend.manager]: Route selected: GENERAL
+2026-10-03 06:16:12,944 [INFO] [incident_backend.manager]: Executing GENERAL query handler via Ollama
+2026-10-03 06:16:50,650 [INFO] [incident_backend.database]: user message saved to database for user_id=2
+2026-10-03 06:16:50,671 [INFO] [incident_backend.database]: assistant message saved to database for user_id=2
+2026-10-03 06:16:50,671 [INFO] [incident_backend.manager]: Chat complete for user_id: 2. Answer length: 1327
+2026-10-03 06:16:50,672 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 200 | Duration: 56966.11ms | Client: 127.0.0.1
