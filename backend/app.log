@@ -173,3 +173,83 @@ WHERE incident_id ILIKE 'INC20250245' OR incident_id ILIKE 'INC20260354' OR inci
 2026-10-03 06:16:50,671 [INFO] [incident_backend.database]: assistant message saved to database for user_id=2
 2026-10-03 06:16:50,671 [INFO] [incident_backend.manager]: Chat complete for user_id: 2. Answer length: 1327
 2026-10-03 06:16:50,672 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/chat | Status: 200 | Duration: 56966.11ms | Client: 127.0.0.1
+2026-10-03 08:38:09,739 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:38:12,913 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/users/Aravind | Params:  | Client: 127.0.0.1
+2026-10-03 08:38:12,988 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/users/Aravind | Status: 200 | Duration: 74.78ms | Client: 127.0.0.1
+2026-10-03 08:38:32,245 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:38:41,215 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:38:42,201 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:39:15,227 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:39:17,299 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:39:31,865 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:39:44,290 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/users/Aravind | Params:  | Client: 127.0.0.1
+2026-10-03 08:39:44,328 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/users/Aravind | Status: 200 | Duration: 37.88ms | Client: 127.0.0.1
+2026-10-03 08:39:53,080 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/users/Varun | Params:  | Client: 127.0.0.1
+2026-10-03 08:39:53,117 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/users/Varun | Status: 200 | Duration: 37.34ms | Client: 127.0.0.1
+2026-10-03 08:39:53,881 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/users/Varun | Params:  | Client: 127.0.0.1
+2026-10-03 08:39:53,917 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/users/Varun | Status: 200 | Duration: 36.17ms | Client: 127.0.0.1
+2026-10-03 08:41:08,513 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:41:09,721 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:41:11,163 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:41:21,464 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:41:23,541 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:41:24,693 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:41:26,223 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:41:42,701 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:41:45,505 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:41:46,358 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:03,732 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:05,325 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:07,870 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:09,277 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:18,630 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:19,916 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:21,381 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:31,388 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:32,483 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:33,860 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:36,868 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:39,007 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:40,599 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:52,679 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:53,948 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:42:55,523 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:02,951 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:04,207 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:07,876 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:09,267 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:11,820 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:12,875 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:14,900 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:16,373 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:22,199 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:23,979 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:25,508 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:44:26,438 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:45:45,370 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:45:48,086 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:47:23,380 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/users | Params:  | Client: 127.0.0.1
+2026-10-03 08:47:23,431 [ERROR] [incident_backend.api]: Error creating user: tuple index out of range
+2026-10-03 08:47:23,431 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/users | Status: 500 | Duration: 51.62ms | Client: 127.0.0.1
+2026-10-03 08:47:43,618 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:47:45,202 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:47:46,188 [INFO] [incident_backend.api]: Logging initialized. App log path: D:\Projects\Gen_AI\Incident_Manager\backend\app.log
+2026-10-03 08:47:49,642 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/users | Params:  | Client: 127.0.0.1
+2026-10-03 08:47:49,687 [INFO] [incident_backend.database]: New User created username: Varsha
+2026-10-03 08:47:49,688 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/users | Status: 200 | Duration: 45.94ms | Client: 127.0.0.1
+2026-10-03 08:48:37,280 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/users/Varsha | Params:  | Client: 127.0.0.1
+2026-10-03 08:48:37,317 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/users/Varsha | Status: 200 | Duration: 37.14ms | Client: 127.0.0.1
+2026-10-03 08:49:30,677 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/users/ | Params:  | Client: 127.0.0.1
+2026-10-03 08:49:30,677 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/users/ | Status: 307 | Duration: 0.51ms | Client: 127.0.0.1
+2026-10-03 08:49:30,681 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/users | Params:  | Client: 127.0.0.1
+2026-10-03 08:49:30,712 [INFO] [incident_backend.database]: New User created username: Chaitra
+2026-10-03 08:49:30,712 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/users | Status: 200 | Duration: 30.08ms | Client: 127.0.0.1
+2026-10-03 09:00:00,438 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/users/ | Params:  | Client: 127.0.0.1
+2026-10-03 09:00:00,439 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/users/ | Status: 307 | Duration: 0.94ms | Client: 127.0.0.1
+2026-10-03 09:00:00,441 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/users | Params:  | Client: 127.0.0.1
+2026-10-03 09:00:00,465 [INFO] [incident_backend.database]: New User created username: Aravind
+2026-10-03 09:00:00,466 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/users | Status: 200 | Duration: 25.24ms | Client: 127.0.0.1
+2026-10-03 09:00:46,679 [INFO] [incident_backend.api]: [TRANSACTION START] POST /api/users/Aravind | Params:  | Client: 127.0.0.1
+2026-10-03 09:00:46,679 [INFO] [incident_backend.api]: [TRANSACTION END] POST /api/users/Aravind | Status: 405 | Duration: 0.0ms | Client: 127.0.0.1
+2026-10-03 09:00:55,295 [INFO] [incident_backend.api]: [TRANSACTION START] GET /api/users/Aravind | Params:  | Client: 127.0.0.1
+2026-10-03 09:00:55,312 [INFO] [incident_backend.api]: [TRANSACTION END] GET /api/users/Aravind | Status: 200 | Duration: 17.17ms | Client: 127.0.0.1

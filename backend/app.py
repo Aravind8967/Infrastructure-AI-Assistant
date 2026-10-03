@@ -119,12 +119,14 @@ class ChatResponse(BaseModel):
 class UserCreateRequest(BaseModel):
     user_name: str = Field(..., description="Name of the user")
     user_role: str = Field(default="User", description="Role of the user, e.g. Engineer, Manager")
+    user_pass: str = Field(..., description="password for user account")
 
     class Config:
         json_schema_extra = {
             "example": {
                 "user_name": "Arjun Menon",
-                "user_role": "DevOps Engineer"
+                "user_role": "DevOps Engineer",
+                "user_pass": 'password'
             }
         }
 
@@ -208,7 +210,7 @@ def create_user(request: UserCreateRequest):
     Create a new user in identity schema.
     """
     try:
-        user_info = user_interface.insert_user(user_name=request.user_name, user_role=request.user_role)
+        user_info = user_interface.insert_user(user_name=request.user_name, user_role=request.user_role, password=request.user_pass)
         return {
             "status": "success",
             "message": "User created successfully",
