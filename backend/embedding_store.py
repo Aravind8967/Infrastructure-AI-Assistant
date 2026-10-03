@@ -1,18 +1,19 @@
+import os
 import requests
 import psycopg2
 import logging
 
 logger = logging.getLogger("incident_backend.embedding_store")
 
-OLLAMA_URL = "http://localhost:11434"
-EMBEDDING_MODEL = "nomic-embed-text:latest"
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-embed-text:latest")
 
 DB_CONFIG = {
-    "host": "localhost",
-    "port": 5432,
-    "database": "incident_db",
-    "user": "postgres",
-    "password": "postgres123",
+    "host": os.getenv("DB_HOST", "localhost"),
+    "port": int(os.getenv("DB_PORT", "5432")),
+    "database": os.getenv("DB_NAME", "incident_db"),
+    "user": os.getenv("DB_USER", "postgres"),
+    "password": os.getenv("DB_PASS", "postgres123"),
 }
 
 

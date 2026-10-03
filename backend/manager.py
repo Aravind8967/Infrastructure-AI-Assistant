@@ -1,3 +1,4 @@
+import os
 import re
 import requests
 import logging
@@ -6,7 +7,7 @@ from database import SQLInterface, VectorInterface, ConversationInterface
 
 logger = logging.getLogger("incident_backend.manager")
 
-OLLAMA_URL = "http://localhost:11434"
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 LLM_MODEL = "gemma3:4b-it-q4_K_M"
 sql_interface = SQLInterface()
 vector_interface = VectorInterface()

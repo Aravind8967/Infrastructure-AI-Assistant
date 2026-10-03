@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # ------------------------------------------------------------
+  # 1. PostgreSQL Database Container (inc_database)
+  # ------------------------------------------------------------
+  database:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    container_name: inc_database
+    restart: always
+    environment:
+      POSTGRES_DB: incident_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - incident_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d incident_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - incident-net
+
+  # ------------------------------------------------------------
+  # 2. Ollama LLM & Embedding Container (inc_ollama)
+  # ------------------------------------------------------------
+  ollama:
+    build:
+      context: ./ollama
+      dockerfile: Dockerfile
+    container_name: inc_ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - incident-net
+
+  # ------------------------------------------------------------
+  # 3. FastAPI Backend Assistant Container (inc_backend)
+  # ------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: inc_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_NAME=incident_db
+      - DB_USER=postgres
+      - DB_PASS=postgres123
+      - OLLAMA_URL=http://ollama:11434
+    depends_on:
+      database:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    networks:
+      - incident-net
+
+  # ------------------------------------------------------------
+  # 4. React Frontend Container (inc_frontend)
+  # ------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: inc_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - incident-net
+
+# ------------------------------------------------------------
+# Persistent Volumes (Preserved across docker-compose up/down)
+# ------------------------------------------------------------
+volumes:
+  incident_db_data:
+    name: incident_db_data
+  ollama_data:
+    name: ollama_data
+
+networks:
+  incident-net:
+    driver: bridge

@@ -1,3 +1,4 @@
+import os
 import requests
 import psycopg2
 import re
@@ -6,7 +7,7 @@ from default_prompts import SQL_SYSTEM_PROMPT
 
 logger = logging.getLogger("incident_backend.database")
 
-OLLAMA_URL = "http://localhost:11434"
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 MODEL = "gemma3:4b-it-q4_K_M"
 EMBEDDING_MODEL = "nomic-embed-text:latest"
 
@@ -15,11 +16,11 @@ EMBEDDING_MODEL = "nomic-embed-text:latest"
 class SQLInterface:
     def __init__(self):
         self.DB_CONFIG = {
-            "host": "localhost",
-            "port": 5432,
-            "database": "incident_db",
-            "user": "incident_ai",
-            "password": "ai_password"
+            "host": os.getenv("DB_HOST", "localhost"),
+            "port": int(os.getenv("DB_PORT", "5432")),
+            "database": os.getenv("DB_NAME", "incident_db"),
+            "user": os.getenv("DB_USER", "postgres"),
+            "password": os.getenv("DB_PASS", "postgres123")
         }
 
     def generate_sql(self, question):
@@ -77,11 +78,11 @@ class SQLInterface:
 class VectorInterface:
     def __init__(self):
         self.DB_CONFIG = {
-            "host": "localhost",
-            "port": 5432,
-            "database": "incident_db",
-            "user": "incident_ai",
-            "password": "ai_password"
+            "host": os.getenv("DB_HOST", "localhost"),
+            "port": int(os.getenv("DB_PORT", "5432")),
+            "database": os.getenv("DB_NAME", "incident_db"),
+            "user": os.getenv("DB_USER", "postgres"),
+            "password": os.getenv("DB_PASS", "postgres123")
         }
 
     def generate_embedding(self, text):
@@ -167,11 +168,11 @@ class VectorInterface:
 class ConversationInterface:
     def __init__(self):
         self.DB_CONFIG = {
-            "host": "localhost",
-            "port": 5432,
-            "database": "incident_db",
-            "user": "postgres",
-            "password": "postgres123"
+            "host": os.getenv("DB_HOST", "localhost"),
+            "port": int(os.getenv("DB_PORT", "5432")),
+            "database": os.getenv("DB_NAME", "incident_db"),
+            "user": os.getenv("DB_USER", "postgres"),
+            "password": os.getenv("DB_PASS", "postgres123")
         }
 
     def save_message(self, user_id, role, content):
@@ -273,11 +274,11 @@ class ConversationInterface:
 class UserInterface:
     def __init__(self):
         self.DB_CONFIG = {
-            "host": "localhost",
-            "port": 5432,
-            "database": "incident_db",
-            "user": "postgres",
-            "password": "postgres123"
+            "host": os.getenv("DB_HOST", "localhost"),
+            "port": int(os.getenv("DB_PORT", "5432")),
+            "database": os.getenv("DB_NAME", "incident_db"),
+            "user": os.getenv("DB_USER", "postgres"),
+            "password": os.getenv("DB_PASS", "postgres123")
         }
 
     def insert_user(self, user_name, user_role, password):
@@ -361,11 +362,11 @@ class UserInterface:
 class IncidentInterface:
     def __init__(self):
         self.DB_CONFIG = {
-            "host": "localhost",
-            "port": 5432,
-            "database": "incident_db",
-            "user": "incident_ai",
-            "password": "ai_password"
+            "host": os.getenv("DB_HOST", "localhost"),
+            "port": int(os.getenv("DB_PORT", "5432")),
+            "database": os.getenv("DB_NAME", "incident_db"),
+            "user": os.getenv("DB_USER", "postgres"),
+            "password": os.getenv("DB_PASS", "postgres123")
         }
 
     def get_stats(self):
