@@ -65,50 +65,47 @@ export default function AuthModal({ onLogin }) {
         <form onSubmit={handleSubmit} className="auth-form" style={{ marginTop: '16px' }}>
           <div className="form-group">
             <label className="form-label">Username</label>
-            <div style={{ position: 'relative' }}>
+            <div className="input-wrapper">
+              <User size={18} className="input-icon" />
               <input
                 type="text"
                 className="form-input"
-                style={{ width: '100%', paddingLeft: '40px' }}
                 placeholder="Enter your username"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 required
               />
-              <User size={18} style={{ position: 'absolute', left: '12px', top: '12px', color: '#9ca3af' }} />
             </div>
           </div>
 
           {isSignUp && (
             <div className="form-group">
               <label className="form-label">Role</label>
-              <div style={{ position: 'relative' }}>
+              <div className="input-wrapper">
+                <Briefcase size={18} className="input-icon" />
                 <input
                   type="text"
                   className="form-input"
-                  style={{ width: '100%', paddingLeft: '40px' }}
                   placeholder="e.g. DevOps Engineer, Admin"
                   value={userRole}
                   onChange={(e) => setUserRole(e.target.value)}
                 />
-                <Briefcase size={18} style={{ position: 'absolute', left: '12px', top: '12px', color: '#9ca3af' }} />
               </div>
             </div>
           )}
 
           <div className="form-group">
             <label className="form-label">Password</label>
-            <div style={{ position: 'relative' }}>
+            <div className="input-wrapper">
+              <Lock size={18} className="input-icon" />
               <input
                 type="password"
                 className="form-input"
-                style={{ width: '100%', paddingLeft: '40px' }}
                 placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <Lock size={18} style={{ position: 'absolute', left: '12px', top: '12px', color: '#9ca3af' }} />
             </div>
           </div>
 

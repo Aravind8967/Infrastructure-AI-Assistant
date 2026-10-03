@@ -49,14 +49,16 @@ export default function IncidentsListModal({ stateKey, title, onClose, onSelectI
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-body table-modal-body">
           {loading ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>
               <RefreshCw size={24} className="spin" style={{ marginBottom: '12px' }} />
               <p>Loading {title}...</p>
             </div>
           ) : error ? (
-            <div className="error-banner">{error}</div>
+            <div style={{ padding: '20px' }}>
+              <div className="error-banner">{error}</div>
+            </div>
           ) : incidents.length === 0 ? (
             <p style={{ textAlign: 'center', color: '#9ca3af', padding: '40px' }}>
               No incidents found in state '{stateKey}'.
