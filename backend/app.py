@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from manager import Manager
-from database import SQLInterface, VectorInterface, ConversationInterface, UserInterface
+from database import SQLInterface, VectorInterface, ConversationInterface, UserInterface, IncidentInterface
 
 # ============================================================
 # 1. LOGGING CONFIGURATION (app.log)
@@ -40,6 +40,7 @@ sql_interface = SQLInterface()
 vector_interface = VectorInterface()
 conversation_interface = ConversationInterface()
 user_interface = UserInterface()
+incident_interface = IncidentInterface()
 
 
 # ============================================================
@@ -129,6 +130,11 @@ class UserCreateRequest(BaseModel):
                 "user_pass": 'password'
             }
         }
+
+
+class LoginRequest(BaseModel):
+    user_name: str = Field(..., description="Username")
+    password: str = Field(..., description="Password")
 
 
 class SQLQueryRequest(BaseModel):
@@ -269,6 +275,108 @@ def get_recent_logs(lines: int = 50):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Unable to read log file: {str(e)}"
         )
+
+
+# ============================================================
+# 6. ADDITIONAL FRONTEND SUPPORT ENDPOINTS
+# ============================================================
+
+@app.post("/api/auth/login", tags=["Auth"])
+def login(request: LoginRequest):
+    """Authenticate user with user_name and password."""
+    try:
+        user = user_interface.authenticate_user(user_name=request.user_name, password=request.password)
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid username or password")
+        return {
+            "status": "success",
+            "message": "Login successful",
+            "user": user
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error authenticating user: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/auth/signup", tags=["Auth"])
+def signup(request: UserCreateRequest):
+    """Sign up a new user."""
+    try:
+        user_info = user_interface.insert_user(
+            user_name=request.user_name,
+            user_role=request.user_role,
+            password=request.user_pass
+        )
+        return {
+            "status": "success",
+            "message": "User account created successfully",
+            "user": user_info
+        }
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Error signing up user: {e}")
+        raise HTTPException(status_code=500, detail=f"Could not create user: {str(e)}")
+
+
+@app.delete("/api/history/{user_id}", tags=["Conversation History"])
+def clear_chat_history(user_id: int):
+    """Clear all conversation history for a specific user."""
+    try:
+        conversation_interface.clear_history(user_id=user_id)
+        return {
+            "status": "success",
+            "message": f"Cleared all conversation history for user_id={user_id}"
+        }
+    except Exception as e:
+        logger.error(f"Error clearing history for user {user_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to clear conversation history: {str(e)}"
+        )
+
+
+@app.get("/api/incidents/stats", tags=["Incidents"])
+def get_incident_stats():
+    """Get total count and breakdown by distinct state (Open, In Progress, Pending, Closed)."""
+    try:
+        stats = incident_interface.get_stats()
+        return stats
+    except Exception as e:
+        logger.error(f"Error getting incident stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/incidents", tags=["Incidents"])
+def get_incidents_by_state(state: str = None):
+    """Fetch list of incidents, optionally filtered by state."""
+    try:
+        incidents = incident_interface.get_incidents_by_state(state=state)
+        return {
+            "state": state or "all",
+            "count": len(incidents),
+            "incidents": incidents
+        }
+    except Exception as e:
+        logger.error(f"Error fetching incidents by state: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/incidents/{incident_id}", tags=["Incidents"])
+def get_incident_detail(incident_id: str):
+    """Get full details of a specific incident by ID."""
+    try:
+        incident = incident_interface.get_incident_by_id(incident_id=incident_id)
+        if not incident:
+            raise HTTPException(status_code=404, detail=f"Incident {incident_id} not found")
+        return incident
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching incident detail for {incident_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

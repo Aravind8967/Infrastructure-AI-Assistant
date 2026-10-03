@@ -253,6 +253,22 @@ class ConversationInterface:
         finally:
             conn.close()
 
+    def clear_history(self, user_id):
+        conn = psycopg2.connect(**self.DB_CONFIG)
+        try:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM conversation.messages WHERE user_id = %s;", (user_id,))
+            conn.commit()
+            logger.info(f"Cleared conversation history for user_id={user_id}")
+            return True
+        except Exception as e:
+            conn.rollback()
+            logger.error(f"Error clearing conversation history: {e}")
+            raise e
+        finally:
+            cursor.close()
+            conn.close()
+
 
 class UserInterface:
     def __init__(self):
@@ -314,6 +330,122 @@ class UserInterface:
             else:
                 return None
 
+        finally:
+            conn.close()
+
+    def authenticate_user(self, user_name, password):
+        conn = psycopg2.connect(**self.DB_CONFIG)
+        try:
+            cursor = conn.cursor()
+            query = """
+                SELECT user_id, user_name, user_role, created_at, password
+                FROM identity.users 
+                WHERE LOWER(user_name) = LOWER(%s)
+            """
+            cursor.execute(query, (user_name,))
+            user = cursor.fetchone()
+
+            if user and (len(user) <= 4 or user[4] == password or not user[4]):
+                return {
+                    'user_id': user[0],
+                    'user_name': user[1],
+                    'user_role': user[2],
+                    'created_at': str(user[3])
+                }
+            return None
+        finally:
+            cursor.close()
+            conn.close()
+
+
+class IncidentInterface:
+    def __init__(self):
+        self.DB_CONFIG = {
+            "host": "localhost",
+            "port": 5432,
+            "database": "incident_db",
+            "user": "incident_ai",
+            "password": "ai_password"
+        }
+
+    def get_stats(self):
+        conn = psycopg2.connect(**self.DB_CONFIG)
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) as total,
+                    COUNT(*) FILTER (WHERE LOWER(state) = 'open') as open_count,
+                    COUNT(*) FILTER (WHERE LOWER(state) = 'in progress') as in_progress_count,
+                    COUNT(*) FILTER (WHERE LOWER(state) = 'pending') as pending_count,
+                    COUNT(*) FILTER (WHERE LOWER(state) = 'closed') as closed_count
+                FROM incident.incidents;
+            """)
+            row = cursor.fetchone()
+            return {
+                "total": row[0] or 0,
+                "open": row[1] or 0,
+                "in_progress": row[2] or 0,
+                "pending": row[3] or 0,
+                "closed": row[4] or 0
+            }
+        finally:
+            conn.close()
+
+    def get_incidents_by_state(self, state=None):
+        conn = psycopg2.connect(**self.DB_CONFIG)
+        try:
+            cursor = conn.cursor()
+            if state and state.lower() != 'all':
+                cursor.execute("""
+                    SELECT incident_id, short_description, category, subcategory, 
+                           assignment_group, assigned_to, criticality, state, opened_at
+                    FROM incident.incidents
+                    WHERE LOWER(state) = LOWER(%s)
+                    ORDER BY opened_at DESC;
+                """, (state,))
+            else:
+                cursor.execute("""
+                    SELECT incident_id, short_description, category, subcategory, 
+                           assignment_group, assigned_to, criticality, state, opened_at
+                    FROM incident.incidents
+                    ORDER BY opened_at DESC;
+                """)
+            
+            rows = cursor.fetchall()
+            columns = [desc[0] for desc in cursor.description]
+            result = []
+            for row in rows:
+                item = dict(zip(columns, row))
+                if item.get("opened_at"):
+                    item["opened_at"] = str(item["opened_at"])
+                result.append(item)
+            return result
+        finally:
+            conn.close()
+
+    def get_incident_by_id(self, incident_id):
+        conn = psycopg2.connect(**self.DB_CONFIG)
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT incident_id, short_description, description, category, subcategory,
+                       assignment_group, assigned_to, criticality, criticality_description,
+                       state, opened_at, closed_at, opened_by, closed_by, resolution,
+                       root_cause_analysis, service
+                FROM incident.incidents
+                WHERE LOWER(incident_id) = LOWER(%s);
+            """, (incident_id,))
+            row = cursor.fetchone()
+            if not row:
+                return None
+            columns = [desc[0] for desc in cursor.description]
+            item = dict(zip(columns, row))
+            if item.get("opened_at"):
+                item["opened_at"] = str(item["opened_at"])
+            if item.get("closed_at"):
+                item["closed_at"] = str(item["closed_at"])
+            return item
         finally:
             conn.close()
 
