@@ -41,6 +41,10 @@ SwarmOps solves this by providing a unified **Hybrid AI Search Platform**:
 
 ## 🏗️ Architecture & Microservices
 
+![alt text](Images/hld.jpg)
+
+![alt text](Images/LLD.png)
+
 ```
                      ┌─────────────────────────────────────────┐
                      │          React Frontend (80)            │
@@ -142,6 +146,14 @@ The PostgreSQL database (`incident_db`) is organized into three clean schemas:
 
 ---
 
-## 📄 License
+## Project working images
 
-Distributed under the MIT License. See `LICENSE` for more information.
+![alt text](Images/1.png) 
+
+![alt text](Images/2.png) 
+
+![alt text](Images/3.png) 
+
+![alt text](Images/4.png) 
+
+![alt text](Images/5.png)
