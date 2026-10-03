@@ -264,18 +264,18 @@ class UserInterface:
             "password": "postgres123"
         }
 
-    def insert_user(self, user_name, user_role):
+    def insert_user(self, user_name, user_role, password):
         conn = psycopg2.connect(**self.DB_CONFIG)
 
         try:
             cursor = conn.cursor()
             query = """
-                INSERT INTO identity.users (user_name, user_role)
-                VALUES (%s, %s)
+                INSERT INTO identity.users (user_name, user_role, password)
+                VALUES (%s, %s, %s)
                 RETURNING user_id, user_name, user_role, created_at;
             """
 
-            cursor.execute(query, (user_name, user_role))
+            cursor.execute(query, (user_name, user_role, password))
             created_user = cursor.fetchone()
             conn.commit()
 
@@ -297,8 +297,8 @@ class UserInterface:
         try:
             cursor = conn.cursor()
             query = """
-                SELECT user_id, user_name, user_role, created_at from identity.users 
-                WHERE user_name ILIKE %s
+                SELECT * from identity.users 
+                WHERE user_name LIKE %s
             """
             cursor.execute(query, (user_name,))
             user = cursor.fetchone()
@@ -308,7 +308,8 @@ class UserInterface:
                     'user_id': user[0],
                     'user_name': user[1],
                     'user_role': user[2],
-                    'created_at': str(user[3])
+                    'created_at': str(user[3]),
+                    'password' : user[4]
                 }
             else:
                 return None

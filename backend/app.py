@@ -119,12 +119,14 @@ class ChatResponse(BaseModel):
 class UserCreateRequest(BaseModel):
     user_name: str = Field(..., description="Name of the user")
     user_role: str = Field(default="User", description="Role of the user, e.g. Engineer, Manager")
+    user_pass: str = Field(..., description="password for user account")
 
     class Config:
         json_schema_extra = {
             "example": {
                 "user_name": "Arjun Menon",
-                "user_role": "DevOps Engineer"
+                "user_role": "DevOps Engineer",
+                "user_pass": 'password'
             }
         }
 
@@ -208,7 +210,7 @@ def create_user(request: UserCreateRequest):
     Create a new user in identity schema.
     """
     try:
-        user_info = user_interface.insert_user(user_name=request.user_name, user_role=request.user_role)
+        user_info = user_interface.insert_user(user_name=request.user_name, user_role=request.user_role, password=request.user_pass)
         return {
             "status": "success",
             "message": "User created successfully",
@@ -239,53 +241,6 @@ def get_user_profile(user_name: str):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error retrieving user: {str(e)}"
-        )
-
-
-@app.post("/api/search/sql", tags=["Database Search"])
-def search_sql(request: SQLQueryRequest):
-    """
-    Directly generate and execute SQL query for a given user question.
-    """
-    try:
-        generated_sql = sql_interface.generate_sql(request.question)
-        results = sql_interface.sql_assistent(request.question)
-        return {
-            "question": request.question,
-            "generated_sql": generated_sql,
-            "record_count": len(results),
-            "results": results
-        }
-    except Exception as e:
-        logger.error(f"Error in SQL search: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"SQL search execution failed: {str(e)}"
-        )
-
-
-@app.post("/api/search/vector", tags=["Database Search"])
-def search_vector(request: VectorSearchRequest):
-    """
-    Directly run Vector similarity search against past incidents.
-    """
-    try:
-        results = vector_interface.vector_search(
-            query=request.query,
-            top_k=request.top_k,
-            similarity_threshold=request.similarity_threshold
-        )
-        return {
-            "query": request.query,
-            "results_count": len(results),
-            "similarity_threshold": request.similarity_threshold,
-            "results": results
-        }
-    except Exception as e:
-        logger.error(f"Error in vector search: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Vector search failed: {str(e)}"
         )
 
 
